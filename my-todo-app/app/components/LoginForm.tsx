@@ -1,18 +1,30 @@
 "use client";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
+import { loginUser } from "../api/AuthApi";
 
 const validationSchema = Yup.object({
   email: Yup.string().email("Невірний формат email").required("Обов'язкове поле"),
   password: Yup.string().min(6, "Мінімум 6 символів").required("Обов'язкове поле"),
 });
 
-export default function LoginForm({ onSubmit }) {
+export default function LoginForm() {
+  const handleSubmit = async (values, { setSubmitting, setErrors }) => {
+    try {
+      await loginUser(values);
+      alert("Авторизація успішна!");
+    } catch (error) {
+      setErrors({ email: "Помилка авторизації" });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
     <Formik
       initialValues={{ email: "", password: "" }}
       validationSchema={validationSchema}
-      onSubmit={onSubmit}
+      onSubmit={handleSubmit}
     >
       {({ isSubmitting }) => (
         <Form className="bg-white p-6 rounded-lg shadow-md w-96">
