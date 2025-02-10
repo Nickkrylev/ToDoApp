@@ -1,8 +1,10 @@
 
 
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { LoginUserDto } from './dto/login-user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
@@ -46,4 +48,26 @@ export class UsersService {
     const user = await this.findOne(id);
     await this.userRepository.remove(user);
   }
+
+  async login(loginUserDto: LoginUserDto): Promise<User> {
+    const { email, password } = loginUserDto;
+    
+
+    const user = await this.userRepository.findOne({
+      where: { email },
+      select: ['id', 'username','email', 'password']  // додайте тут інші поля, які вам потрібні
+    });
+  
+    if (!user) {
+      throw new NotFoundException(`User with email ${email} not found or password is incorrect`);
+    }
+    
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+    return user;
+  }
+  
+  
 }

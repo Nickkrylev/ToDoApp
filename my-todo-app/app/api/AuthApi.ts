@@ -13,7 +13,7 @@ export const registerUser = async (userData) => {
 
 export const loginUser = async (userData) => {
   try {
-    const response = await axios.post(`${API_URL}/login`, userData);
+    const response = await axios.post(`${API_URL}/users/login`, userData);
     return response.data;
   } catch (error) {
     throw error.response?.data || "Помилка авторизації";
