@@ -2,6 +2,7 @@
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { loginUser } from "../api/AuthApi";
+import { useRouter } from "next/navigation";
 
 const validationSchema = Yup.object({
   email: Yup.string().email("Невірний формат email").required("Обов'язкове поле"),
@@ -11,8 +12,10 @@ const validationSchema = Yup.object({
 export default function LoginForm() {
   const handleSubmit = async (values, { setSubmitting, setErrors }) => {
     try {
-      await loginUser(values);
+      const response = await loginUser(values);
+      sessionStorage.setItem("token", response.token);
       alert("Авторизація успішна!");
+      router.push("/dashboard");
     } catch (error) {
       setErrors({ email: "Помилка авторизації" });
     } finally {

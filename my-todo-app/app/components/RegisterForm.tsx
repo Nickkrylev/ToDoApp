@@ -2,6 +2,7 @@
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { registerUser } from "../api/AuthApi";
+import { useRouter } from "next/navigation";
 
 const validationSchema = Yup.object({
   username: Yup.string().min(3, "Мінімум 3 символи").required("Обов'язкове поле"),
@@ -15,8 +16,11 @@ const validationSchema = Yup.object({
 export default function RegisterForm() {
   const handleSubmit = async (values, { setSubmitting, setErrors }) => {
     try {
-      await registerUser(values);
+      const response = await registerUser(values);
+      sessionStorage.setItem("token", response.token);
       alert("Реєстрація успішна!");
+      router.push("/dashboard");
+      
     } catch (error) {
       setErrors({ email: "Помилка реєстрації" });
     } finally {
